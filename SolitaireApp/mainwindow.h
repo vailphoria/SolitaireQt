@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    static myCards* currentActiveCard;
 
 public slots:
     void deckRange();

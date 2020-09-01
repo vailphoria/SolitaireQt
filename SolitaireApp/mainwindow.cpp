@@ -10,7 +10,7 @@
 #include <QThread>
 #include <QPropertyAnimation>
 #include <QDebug>
-class myCards;
+//class myCards;
 
 
 
@@ -26,6 +26,8 @@ QList <myCards*> deckCards;
 
 QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
+
+myCards* MainWindow::currentActiveCard;
 
 int whichCardX = 0;
 int whichCardY = 0;
@@ -70,6 +72,7 @@ void MainWindow::newGame(){
         deckCards.append(new myCards(this));
         deckCards[i]->move(x,y);
         deckCards[i]->setValue(deck[i]);
+        connect(deckCards[i],SIGNAL(moveCard()),this,SLOT(gameplay()));
         x-=0.5;
         y-=0.5;
     }
@@ -123,6 +126,8 @@ void MainWindow::nextCard(){
 }
 
 void MainWindow::gameplay(){
+    qDebug()<<currentActiveCard;
+    currentActiveCard->move(40,40);
 }
 
 void MainWindow::deckRange(){

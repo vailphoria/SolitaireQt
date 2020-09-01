@@ -7,11 +7,14 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QCursor>
+#include <QMainWindow>
 
 class myCards : public QLabel
 {
+public:
     Q_OBJECT
 public:
+    //static myCards* currentActiveCard;
     QString value = "suit";
     double myStartX, myStartY, myEndX, myEndY;
     int lastX,lastY;
@@ -24,15 +27,16 @@ public:
     explicit myCards(QWidget *parent = nullptr);
     void setValue(QString value);
     void distribution(double x0=0, double y0=0, double x1=0, double y1=0);
-    //void testPos();
 
 signals:
      void click();
+     void moveCard();
 
 public slots:
     void setOpen();
     void setClosed();
     void mousePressEvent(QMouseEvent *event);
+    //void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     void mouseMoveEvent(QMouseEvent *event);

@@ -79,11 +79,12 @@ void myCards::mouseMoveEvent(QMouseEvent *event)
 {
     if(event->buttons() & Qt::LeftButton && isNew == false && !isBlock && !inDeck)
         {
-            if (!onMove){
-                onMove = true;
-            }
-            this->move(mapToParent(event->pos() - offset));
-            this->raise(); //while not in group
+        if(MainWindow::currentActiveCard!=this){
+            MainWindow::currentActiveCard = this;
+            moveCard();
+        }
+        this->move(mapToParent(event->pos() - offset));
+        this->raise(); //while not in group
         }
 }
 
