@@ -10,7 +10,7 @@
 #include <QThread>
 #include <QPropertyAnimation>
 #include <QDebug>
-
+class myCards;
 
 
 
@@ -27,9 +27,6 @@ QList <myCards*> deckCards;
 QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
 
-
-
-//int sizeArr = 51;
 int whichCardX = 0;
 int whichCardY = 0;
 int dnX, dnY;
@@ -43,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     newGame();
-    gameplay();
+    //gameplay();
 }
 MainWindow::~MainWindow()
 {
@@ -65,21 +62,16 @@ void MainWindow::newGame(){
     //-----------------------------------------
     ui->repeatDeck->isNew=true;
     ui->repeatDeck->value="backCards";
-     ui->repeatDeck->setOpen();
+    ui->repeatDeck->setOpen();
     connect(ui->repeatDeck,SIGNAL(click()),this,SLOT(deckRange()));
 
 
     for (int i = 0; i < 52; i++) {
         deckCards.append(new myCards(this));
         deckCards[i]->move(x,y);
-        //deckCards[i]->lastX = x;
-        //deckCards[i]->lastY = y;
         deckCards[i]->setValue(deck[i]);
-        //connect(deckCards[i],SIGNAL(click()),this,SLOT(deckRange()));
-
         x-=0.5;
         y-=0.5;
-        //if(i%2 == 0)deckCards[i]->setOpen();
     }
     //-------------------createSets----------------------
     for (int i = 0; i<7;i++){
@@ -87,10 +79,8 @@ void MainWindow::newGame(){
         floorSets.append(QList<myCards*>());
     }
     //---------------------------------------------------
-    //test();
-    //createSets();
+    createSets();
     nextCard();
-    //test();
 }
 
 void MainWindow::createSets(){
@@ -108,14 +98,10 @@ void MainWindow::nextCard(){
     dnX = 30 + whichCardX*170;
     QPropertyAnimation *animation = new QPropertyAnimation(deckCards[deckCards.length()-1], "geometry");
 
-    animation->setDuration(3000);
+    animation->setDuration(1000);
     animation->setStartValue(QRect(30, 30, 100, 30));
     animation->setEndValue(QRect(dnX, dnY, 100, 30));
-    //deckCards[deckCards.length()-1]->move(dnX,dnY);
-    //test();
     animation->start();
-
-    //deckCards[deckCards.length()-1]->testPos();
 
     deckCards[deckCards.length()-1]->raise();
     deckCards[deckCards.length()-1]->isNew = false;
@@ -128,26 +114,15 @@ void MainWindow::nextCard(){
         whichCardY++;
         whichCardX=whichCardY;
     }
-    //floorSets[whichCardX].append(deckCards[deckCards.length()-1]);
 
     if((deckCards.length()-1)>24){
-        //deckCards[deckCards.length()-1]->move(dnX,dnY);
-        //deckCards[deckCards.length()-1]->testPos();
-
-        //deckCards.last()->testPos();
         deckCards.removeLast();
 
         QTimer::singleShot(100,this,SLOT(nextCard()));
     }
-    //test();
 }
 
 void MainWindow::gameplay(){
-
-    if( deckCards[0]->x()==deckCards[1]->x()){
-
-    }
-
 }
 
 void MainWindow::deckRange(){
@@ -159,23 +134,7 @@ void MainWindow::deckRange(){
         y-=0.5;
 
         deckCards[i]->setClosed();
-        //qDebug()<<"to deckCards";
-
     }
     ui->repeatDeck->move(30,30);
     ui->repeatDeck->isNew=true;
 }
-void MainWindow::test(){
-    for (int i = 0;i<floorSets.length();i++){
-        for (int j = 0;j<floorSets[i].length();j++){
-            floorSets[i][j]->testPos();
-        }
-        qDebug()<<"...";
-    }
-    for (int var = 0; var < deckCards.length(); var++) {
-        deckCards[var]->testPos();
-    }
-    qDebug()<<"...";
-    //qDebug()<<deckCards[deckCards.length()-1]->lastX<<"; "<<deckCards[deckCards.length()-1]->lastY;
-}
-

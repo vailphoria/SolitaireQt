@@ -805,24 +805,12 @@ debug/mainwindow.o: ../SolitaireApp/mainwindow.cpp ../SolitaireApp/mainwindow.h 
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/QDebug \
 		F:/Qt/5.15.0/mingw81_64/include/QtGui/QCursor \
 		ui_mainwindow.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtCore/QVariant \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/QApplication \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qapplication.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtCore/qcoreapplication.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtCore/qeventloop.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qdesktopwidget.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtGui/qguiapplication.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtGui/qinputmethod.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/QMenuBar \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qmenubar.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qmenu.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qaction.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/qactiongroup.h \
-		F:/Qt/5.15.0/mingw81_64/include/QtWidgets/QWidget \
 		F:/Qt/5.15.0/mingw81_64/include/QtGui/QPixmap \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/QTimer \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/qtimer.h \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/qbasictimer.h \
+		F:/Qt/5.15.0/mingw81_64/include/QtCore/QTime \
+		F:/Qt/5.15.0/mingw81_64/include/QtCore/qdatetime.h \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/QThread \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/qthread.h \
 		F:/Qt/5.15.0/mingw81_64/include/QtCore/qdeadlinetimer.h \

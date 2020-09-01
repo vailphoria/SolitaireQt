@@ -23,17 +23,13 @@ myCards::myCards(QWidget *parent) : QLabel(parent)
     isNew = true;
     isBlock = false;
     inDeck = true;
-
-
-    //connect(this,SIGNAL(mousePressEvent),,SLOT(deckRange()));
+    onMove = false;
 
 }
 void myCards::setOpen(){
     isOpen = true;
     pix=new QPixmap(":/img/pictures/cards/"+value+".png");
     this->setPixmap(*pix);
-
-    testPos();
 }
 void myCards::setClosed(){
     isOpen = false;
@@ -64,7 +60,6 @@ void myCards::setValue(QString val1){
 
 void myCards::mousePressEvent(QMouseEvent *event)
 {
-    qDebug()<<"mouse pressed"<<this->pos();
     if (isNew) {
         this->move(200,30);
         this->setOpen();
@@ -72,11 +67,9 @@ void myCards::mousePressEvent(QMouseEvent *event)
         isNew = false;
         inDeck = true;
         click();
-        testPos();
 
     }
     else {
-        //this->move(mapToParent)
         inDeck = false;
     }
 
@@ -86,35 +79,12 @@ void myCards::mouseMoveEvent(QMouseEvent *event)
 {
     if(event->buttons() & Qt::LeftButton && isNew == false && !isBlock && !inDeck)
         {
-            qDebug()<<"mm"<<this->pos();
+            if (!onMove){
+                onMove = true;
+            }
             this->move(mapToParent(event->pos() - offset));
             this->raise(); //while not in group
         }
-}
-
-void myCards::distribution(double x0, double y0, double x1, double y1){
-    myStartX = x0;
-    myStartY = y0;
-    myEndX = x1;
-    myEndY = y1;
-    connect(timer, SIGNAL(timeout()), this, SLOT(step()));
-    isNew = false;
-
-}
-
-void myCards::step(){
-    if(fabs(myStartX-myEndX)<1&&fabs(myStartY-myEndY)<1){
-        disconnect(timer, SIGNAL(timeout()), this, SLOT(step()));
-    }
-    myStartX += (myEndX - (this->x()))/10;
-    myStartY += (myEndY - (this->y()))/10;
-    this->move(myStartX, myStartY);
-}
-
-
-
-void myCards::testPos(){
-    qDebug()<<this->pos();
 }
 
 

@@ -7,7 +7,6 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QCursor>
-//#include "mainwindow.h"
 
 class myCards : public QLabel
 {
@@ -21,23 +20,22 @@ public:
     bool isNew = true;
     bool isBlock = false;
     bool inDeck = true;
+    bool onMove = false;
     explicit myCards(QWidget *parent = nullptr);
     void setValue(QString value);
     void distribution(double x0=0, double y0=0, double x1=0, double y1=0);
-    void testPos();
+    //void testPos();
 
 signals:
      void click();
 
 public slots:
-    void step();
     void setOpen();
     void setClosed();
     void mousePressEvent(QMouseEvent *event);
 
 private:
     void mouseMoveEvent(QMouseEvent *event);
-    //void mousePressEvent(QMouseEvent *event);
     //void mouseReleaseEvent(QMouseEvent *event);
 
 };

@@ -16,11 +16,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    //void deckRange();
 
 public slots:
     void deckRange();
-    void test();
 
 signals:
 
