@@ -5,14 +5,13 @@
 #include <QTimer>
 #include <QTime>
 #include "windows.h"
-//#include <QTest>
+#include "math.h"
 #include <unistd.h>
 #include <QThread>
-#include <QPropertyAnimation>
 #include <QDebug>
 //class myCards;
 
-
+bool isFloorSet=0;
 
 QString deck[52] = { "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cJ", "cQ", "cK", "cA",
                      "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "dJ", "dQ", "dK", "dA",
@@ -24,14 +23,29 @@ QString deck[52] = { "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cJ"
 
 QList <myCards*> deckCards;
 
+
 QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
+QList <QLabel*> topSet;
 
-myCards* MainWindow::currentActiveCard;
+QList <myCards*> openCards;
+QList <QList <myCards*>*> openCardsSets;
+QList <myCards*> openNearCards;
+QList <QList <myCards*>*> openNearCardsSets;
+QList<double> openNearCardsDistance;
+
+//myCards *bestPlace=nullptr;
+
+myCards* MainWindow::currentActiveCard=nullptr;
+QList <myCards*> *activeCardSet;
+
+myCards *repeatDeck;
 
 int whichCardX = 0;
 int whichCardY = 0;
-int dnX, dnY;
+int dnX, dnY, nowX, nowY;
+
+int delay = 100;
 
 //------------------------------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent)
@@ -40,6 +54,17 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    QPixmap pix(":/img/pictures/background/bg.jpg");
+    int w = this->width();
+    int h = this->height();
+    QLabel *bg = new QLabel(this);
+    bg->setGeometry(0,0,w,h);
+    bg->setPixmap(pix.scaled(w,h));
+
+    repeatDeck = new myCards(this);
+    pix.load(":/img/pictures/cards/backCards.png");
+    repeatDeck->setGeometry(30,30,143,200);
+    repeatDeck->setPixmap(pix);
 
     newGame();
     //gameplay();
@@ -62,17 +87,18 @@ void MainWindow::newGame(){
         deck[i] = tmp;
     }
     //-----------------------------------------
-    ui->repeatDeck->isNew=true;
-    ui->repeatDeck->value="backCards";
-    ui->repeatDeck->setOpen();
-    connect(ui->repeatDeck,SIGNAL(click()),this,SLOT(deckRange()));
+    repeatDeck->isNew=true;
+    repeatDeck->value="backCards";
+    repeatDeck->setOpen();
+    connect(repeatDeck,SIGNAL(click()),this,SLOT(deckRange()));
 
 
     for (int i = 0; i < 52; i++) {
         deckCards.append(new myCards(this));
         deckCards[i]->move(x,y);
         deckCards[i]->setValue(deck[i]);
-        connect(deckCards[i],SIGNAL(moveCard()),this,SLOT(gameplay()));
+        connect(deckCards[i],SIGNAL(moveCard()),this,SLOT(saveParameter()));
+        connect(deckCards[i],SIGNAL(stopCard()),this,SLOT(moveCardToBestPlace()));
         x-=0.5;
         y-=0.5;
     }
@@ -81,53 +107,71 @@ void MainWindow::newGame(){
         if (i<4) readySets.append(QList<myCards*>());
         floorSets.append(QList<myCards*>());
     }
-    //---------------------------------------------------
+    //----------------------Top--------------------------
+    x = 540; y = 30;
+    for (int i = 0; i < 4; i++) {
+        topSet.append(new QLabel(this));
+        topSet[i]->setGeometry(x,y,143,200);
+        QPixmap pix(":/img/pictures/cards/place.png");
+        topSet[i]->setPixmap(pix);
+
+        x+=170;
+    }
     createSets();
-    nextCard();
+
 }
 
 void MainWindow::createSets(){
-    int arrSize = deckCards.length()-1;
+    int arrSize = deckCards.length();
     for (int i = 0;i<7;i++){
-        for (int j = i;j<7;j++){
-            floorSets[j].append(deckCards[arrSize]);
+        for (int j = 0;j<=i;j++){
             arrSize--;
+            floorSets[i].append(deckCards[arrSize]);
+            qDebug()<<i<<j<<floorSets[i][j]->value;
         }
     }
+    while(deckCards.length()>24) deckCards.removeLast();
+    nextCard();
+
 }
 
 void MainWindow::nextCard(){
-    dnY = 260 + whichCardY*20;
-    dnX = 30 + whichCardX*170;
-    QPropertyAnimation *animation = new QPropertyAnimation(deckCards[deckCards.length()-1], "geometry");
+    //i=x j=y
+    int mlsDel=0, mlsMove = 500;
+    for (int j = 0;j<floorSets.length();j++){
+        dnY = 260 + j*20;
+        //mlsDel+=400;
+        //mlsMove=500;
+        for (int i=j;i<floorSets.length();i++){
+            dnX = 30 + i*170;
+            floorSets[i][j]->raise();
 
-    animation->setDuration(1000);
-    animation->setStartValue(QRect(30, 30, 100, 30));
-    animation->setEndValue(QRect(dnX, dnY, 100, 30));
-    animation->start();
+            mlsDel+=90;
+            //mlsMove-=20;
 
-    deckCards[deckCards.length()-1]->raise();
-    deckCards[deckCards.length()-1]->isNew = false;
-    deckCards[deckCards.length()-1]->inDeck = false;
-    if (whichCardX==whichCardY) connect(animation,SIGNAL(finished()),deckCards[deckCards.length()-1],SLOT(setOpen()));
-    else deckCards[deckCards.length()-1]->isBlock = true;
+            anim1 = new QPropertyAnimation (floorSets[i][j], "geometry");
+            anim1->setDuration(mlsDel);
+            anim1->setStartValue(QRect(18, 18, 143, 200));
+            anim1->setEndValue(QRect(18, 18, 143, 200));
 
-    whichCardX++;
-    if(whichCardX%7==0){
-        whichCardY++;
-        whichCardX=whichCardY;
+            anim2 = new QPropertyAnimation (floorSets[i][j], "geometry");
+            anim2->setDuration(mlsMove);
+            anim2->setStartValue(QRect(18, 18, 143, 200));
+            anim2->setEndValue(QRect(dnX,dnY, 143, 200));
+
+            group = new QSequentialAnimationGroup;
+            group->addAnimation(anim1);
+            group->addAnimation(anim2);
+
+            group->start();
+
+            floorSets[i][j]->isNew = false;
+            floorSets[i][j]->inDeck = false;
+            if (i==j) connect(group,SIGNAL(finished()),floorSets[i][j],SLOT(setOpen()));
+            else floorSets[i][j]->isBlock = true;
+
+        }
     }
-
-    if((deckCards.length()-1)>24){
-        deckCards.removeLast();
-
-        QTimer::singleShot(100,this,SLOT(nextCard()));
-    }
-}
-
-void MainWindow::gameplay(){
-    qDebug()<<currentActiveCard;
-    currentActiveCard->move(40,40);
 }
 
 void MainWindow::deckRange(){
@@ -140,6 +184,109 @@ void MainWindow::deckRange(){
 
         deckCards[i]->setClosed();
     }
-    ui->repeatDeck->move(30,30);
-    ui->repeatDeck->isNew=true;
+    repeatDeck->move(30,30);
+    repeatDeck->isNew=true;
 }
+void MainWindow::gameplay(){
+
+}
+
+//сохранение начальных X и Y
+void MainWindow::saveParameter(){
+    if(currentActiveCard){
+        whichCardX = currentActiveCard->x();
+        whichCardY = currentActiveCard->y();
+        qDebug()<<whichCardX<<whichCardY;
+        fromWhatPlace();
+    }
+}
+
+void MainWindow::moveCardToBestPlace(){
+    if(currentActiveCard){
+        nowX = currentActiveCard->x(), nowY = currentActiveCard->y();//текущее местоположение
+        whatCardsHere();//открытые карты, которые находятся в диапазоне "прикосновения"
+        if(openNearCards.isEmpty()==0) bestPlace();//поиск ближайшей карты
+        else currentActiveCard->move(whichCardX,whichCardY);
+
+        //-------------удаление временных массивов------------
+        openCards.clear();
+        openCardsSets.clear();
+        openNearCards.clear();
+        openNearCardsSets.clear();
+        openNearCardsDistance.clear();
+    }
+}
+
+void MainWindow::whatCardsHere(){
+    isThisCardOpen();//все открытые карты
+
+    for (int i = 0; i < openCards.length(); i++) {
+        int thX = openCards[i]->x(), thY = openCards[i]->y();
+        if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200){
+            openNearCards.append(openCards[i]);
+            openNearCardsSets.append(openCardsSets[i]);
+            openNearCardsDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
+        }
+        openNearCards.removeAll(currentActiveCard);
+        openNearCardsSets.removeAll(activeCardSet);
+    }
+}
+void MainWindow::isThisCardOpen(){
+    for (int i = 0; i<floorSets.length();i++){
+        if(floorSets[i].isEmpty()==0){
+            openCards.append(floorSets[i].last());
+            openCardsSets.append(&floorSets[i]);
+        }
+    }
+}
+//1111111111111111111111111111111111111111111111111111111111111111111
+void MainWindow::bestPlace(){
+    int bestCard=0;
+    for (int i = 1;i<openNearCards.length();i++) {
+        if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;
+    }
+
+    qDebug()<<openNearCards[bestCard]->value;
+    qDebug()<<openNearCards[bestCard]->x()<<openNearCards[bestCard]->y();
+    //currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+    openNearCardsSets[bestCard]->append(currentActiveCard);
+    openNearCardsSets[bestCard]->last()->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+    activeCardSet->removeAll(currentActiveCard);
+
+    if(!activeCardSet->isEmpty()&&isFloorSet){
+        activeCardSet->last()->setOpen();
+        activeCardSet->last()->isBlock = false;
+    }
+
+}
+//1111111111111111111111111111111111111111111111111111111111111111111
+
+
+void MainWindow::fromWhatPlace(){
+    isFloorSet=0;
+
+    int n = deckCards.length();
+    if(n<floorSets.length()) n = floorSets.length();
+    if(n<readySets.length()) n = readySets.length();
+
+    for (int i = 0;i<deckCards.length();i++) {
+        if(i<readySets.length()&& !readySets[i].isEmpty()&&
+                readySets[i].last()==currentActiveCard){
+            activeCardSet=&readySets[i];
+            qDebug()<<"readySets"<<i+1;
+        }
+        else if(i<floorSets.length()&& !floorSets[i].isEmpty()&&
+                floorSets[i].last()==currentActiveCard){
+            activeCardSet=&floorSets[i];
+            isFloorSet=1;
+            qDebug()<<"floorSets"<<i+1;
+        }
+        else if(i<deckCards.length()&& !deckCards.isEmpty()&&
+                deckCards[i]==currentActiveCard){
+            activeCardSet=&deckCards;
+            qDebug()<<"deckCards"<<i+1;
+        }
+    }
+}
+
+

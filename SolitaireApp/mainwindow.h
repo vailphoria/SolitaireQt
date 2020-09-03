@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QPropertyAnimation>
+#include <QSequentialAnimationGroup>
 #include "mycards.h"
 
 
@@ -28,10 +30,20 @@ private slots:
     void nextCard();
     void gameplay();
     void createSets();
-
+    void saveParameter();
+    void whatCardsHere();
+    void isThisCardOpen();
+    void moveCardToBestPlace();
+    void bestPlace();
+    void fromWhatPlace();
 
 
 private:
     Ui::MainWindow *ui;
+
+    QPropertyAnimation *anim1;
+    QPropertyAnimation *anim2;
+
+    QSequentialAnimationGroup *group;
 };
 #endif // MAINWINDOW_H

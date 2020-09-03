@@ -7,8 +7,8 @@
 
 bool isOpen;
 
-QString suit;
-int cardValue;
+//QString suit;
+//int cardValue;
 QTimer *timer;
 
 myCards::myCards(QWidget *parent) : QLabel(parent)
@@ -58,8 +58,10 @@ void myCards::setValue(QString val1){
     else if(value[1] == "K") cardValue = 13;
 }
 
+
 void myCards::mousePressEvent(QMouseEvent *event)
 {
+    MainWindow::currentActiveCard = nullptr;
     if (isNew) {
         this->move(200,30);
         this->setOpen();
@@ -75,8 +77,7 @@ void myCards::mousePressEvent(QMouseEvent *event)
 
     offset = event->pos();
 }
-void myCards::mouseMoveEvent(QMouseEvent *event)
-{
+void myCards::mouseMoveEvent(QMouseEvent *event){
     if(event->buttons() & Qt::LeftButton && isNew == false && !isBlock && !inDeck)
         {
         if(MainWindow::currentActiveCard!=this){
@@ -86,6 +87,9 @@ void myCards::mouseMoveEvent(QMouseEvent *event)
         this->move(mapToParent(event->pos() - offset));
         this->raise(); //while not in group
         }
+}
+void myCards::mouseReleaseEvent(QMouseEvent *event){
+    stopCard();
 }
 
 

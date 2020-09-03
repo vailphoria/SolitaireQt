@@ -16,6 +16,8 @@ public:
 public:
     //static myCards* currentActiveCard;
     QString value = "suit";
+    QString suit;
+    int cardValue;
     double myStartX, myStartY, myEndX, myEndY;
     int lastX,lastY;
     QPixmap *pix;
@@ -31,12 +33,13 @@ public:
 signals:
      void click();
      void moveCard();
+     void stopCard();
 
 public slots:
     void setOpen();
     void setClosed();
     void mousePressEvent(QMouseEvent *event);
-    //void mouseReleaseEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
 
 private:
     void mouseMoveEvent(QMouseEvent *event);

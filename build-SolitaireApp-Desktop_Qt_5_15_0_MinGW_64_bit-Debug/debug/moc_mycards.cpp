@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_myCards_t {
-    QByteArrayData data[9];
-    char stringdata0[77];
+    QByteArrayData data[11];
+    char stringdata0[104];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -36,16 +36,18 @@ QT_MOC_LITERAL(0, 0, 7), // "myCards"
 QT_MOC_LITERAL(1, 8, 5), // "click"
 QT_MOC_LITERAL(2, 14, 0), // ""
 QT_MOC_LITERAL(3, 15, 8), // "moveCard"
-QT_MOC_LITERAL(4, 24, 7), // "setOpen"
-QT_MOC_LITERAL(5, 32, 9), // "setClosed"
-QT_MOC_LITERAL(6, 42, 15), // "mousePressEvent"
-QT_MOC_LITERAL(7, 58, 12), // "QMouseEvent*"
-QT_MOC_LITERAL(8, 71, 5) // "event"
+QT_MOC_LITERAL(4, 24, 8), // "stopCard"
+QT_MOC_LITERAL(5, 33, 7), // "setOpen"
+QT_MOC_LITERAL(6, 41, 9), // "setClosed"
+QT_MOC_LITERAL(7, 51, 15), // "mousePressEvent"
+QT_MOC_LITERAL(8, 67, 12), // "QMouseEvent*"
+QT_MOC_LITERAL(9, 80, 5), // "event"
+QT_MOC_LITERAL(10, 86, 17) // "mouseReleaseEvent"
 
     },
-    "myCards\0click\0\0moveCard\0setOpen\0"
-    "setClosed\0mousePressEvent\0QMouseEvent*\0"
-    "event"
+    "myCards\0click\0\0moveCard\0stopCard\0"
+    "setOpen\0setClosed\0mousePressEvent\0"
+    "QMouseEvent*\0event\0mouseReleaseEvent"
 };
 #undef QT_MOC_LITERAL
 
@@ -55,30 +57,34 @@ static const uint qt_meta_data_myCards[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       2,       // signalCount
+       3,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   39,    2, 0x06 /* Public */,
-       3,    0,   40,    2, 0x06 /* Public */,
+       1,    0,   49,    2, 0x06 /* Public */,
+       3,    0,   50,    2, 0x06 /* Public */,
+       4,    0,   51,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       4,    0,   41,    2, 0x0a /* Public */,
-       5,    0,   42,    2, 0x0a /* Public */,
-       6,    1,   43,    2, 0x0a /* Public */,
+       5,    0,   52,    2, 0x0a /* Public */,
+       6,    0,   53,    2, 0x0a /* Public */,
+       7,    1,   54,    2, 0x0a /* Public */,
+      10,    1,   57,    2, 0x0a /* Public */,
 
  // signals: parameters
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
-    QMetaType::Void, 0x80000000 | 7,    8,
+    QMetaType::Void, 0x80000000 | 8,    9,
+    QMetaType::Void, 0x80000000 | 8,    9,
 
        0        // eod
 };
@@ -91,9 +97,11 @@ void myCards::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         switch (_id) {
         case 0: _t->click(); break;
         case 1: _t->moveCard(); break;
-        case 2: _t->setOpen(); break;
-        case 3: _t->setClosed(); break;
-        case 4: _t->mousePressEvent((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 2: _t->stopCard(); break;
+        case 3: _t->setOpen(); break;
+        case 4: _t->setClosed(); break;
+        case 5: _t->mousePressEvent((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
+        case 6: _t->mouseReleaseEvent((*reinterpret_cast< QMouseEvent*(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -109,6 +117,13 @@ void myCards::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
             using _t = void (myCards::*)();
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&myCards::moveCard)) {
                 *result = 1;
+                return;
+            }
+        }
+        {
+            using _t = void (myCards::*)();
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&myCards::stopCard)) {
+                *result = 2;
                 return;
             }
         }
@@ -144,13 +159,13 @@ int myCards::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 7;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 7)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 5;
+        _id -= 7;
     }
     return _id;
 }
@@ -165,6 +180,12 @@ void myCards::click()
 void myCards::moveCard()
 {
     QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
+}
+
+// SIGNAL 2
+void myCards::stopCard()
+{
+    QMetaObject::activate(this, &staticMetaObject, 2, nullptr);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

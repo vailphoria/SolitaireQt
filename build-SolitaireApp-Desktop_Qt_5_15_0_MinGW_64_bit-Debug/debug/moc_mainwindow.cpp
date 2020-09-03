@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[7];
-    char stringdata0[59];
+    QByteArrayData data[13];
+    char stringdata0[146];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,11 +38,20 @@ QT_MOC_LITERAL(2, 21, 0), // ""
 QT_MOC_LITERAL(3, 22, 7), // "newGame"
 QT_MOC_LITERAL(4, 30, 8), // "nextCard"
 QT_MOC_LITERAL(5, 39, 8), // "gameplay"
-QT_MOC_LITERAL(6, 48, 10) // "createSets"
+QT_MOC_LITERAL(6, 48, 10), // "createSets"
+QT_MOC_LITERAL(7, 59, 13), // "saveParameter"
+QT_MOC_LITERAL(8, 73, 13), // "whatCardsHere"
+QT_MOC_LITERAL(9, 87, 14), // "isThisCardOpen"
+QT_MOC_LITERAL(10, 102, 19), // "moveCardToBestPlace"
+QT_MOC_LITERAL(11, 122, 9), // "bestPlace"
+QT_MOC_LITERAL(12, 132, 13) // "fromWhatPlace"
 
     },
     "MainWindow\0deckRange\0\0newGame\0nextCard\0"
-    "gameplay\0createSets"
+    "gameplay\0createSets\0saveParameter\0"
+    "whatCardsHere\0isThisCardOpen\0"
+    "moveCardToBestPlace\0bestPlace\0"
+    "fromWhatPlace"
 };
 #undef QT_MOC_LITERAL
 
@@ -52,7 +61,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       5,   14, // methods
+      11,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -60,13 +69,25 @@ static const uint qt_meta_data_MainWindow[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   39,    2, 0x0a /* Public */,
-       3,    0,   40,    2, 0x08 /* Private */,
-       4,    0,   41,    2, 0x08 /* Private */,
-       5,    0,   42,    2, 0x08 /* Private */,
-       6,    0,   43,    2, 0x08 /* Private */,
+       1,    0,   69,    2, 0x0a /* Public */,
+       3,    0,   70,    2, 0x08 /* Private */,
+       4,    0,   71,    2, 0x08 /* Private */,
+       5,    0,   72,    2, 0x08 /* Private */,
+       6,    0,   73,    2, 0x08 /* Private */,
+       7,    0,   74,    2, 0x08 /* Private */,
+       8,    0,   75,    2, 0x08 /* Private */,
+       9,    0,   76,    2, 0x08 /* Private */,
+      10,    0,   77,    2, 0x08 /* Private */,
+      11,    0,   78,    2, 0x08 /* Private */,
+      12,    0,   79,    2, 0x08 /* Private */,
 
  // slots: parameters
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -87,6 +108,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 2: _t->nextCard(); break;
         case 3: _t->gameplay(); break;
         case 4: _t->createSets(); break;
+        case 5: _t->saveParameter(); break;
+        case 6: _t->whatCardsHere(); break;
+        case 7: _t->isThisCardOpen(); break;
+        case 8: _t->moveCardToBestPlace(); break;
+        case 9: _t->bestPlace(); break;
+        case 10: _t->fromWhatPlace(); break;
         default: ;
         }
     }
@@ -122,13 +149,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 5)
+        if (_id < 11)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 5;
+        _id -= 11;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 5)
+        if (_id < 11)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 5;
+        _id -= 11;
     }
     return _id;
 }
