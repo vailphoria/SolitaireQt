@@ -127,7 +127,7 @@ void MainWindow::createSets(){
         for (int j = 0;j<=i;j++){
             arrSize--;
             floorSets[i].append(deckCards[arrSize]);
-            qDebug()<<i<<j<<floorSets[i][j]->value;
+            //qDebug()<<i<<j<<floorSets[i][j]->value;
         }
     }
     while(deckCards.length()>24) deckCards.removeLast();
@@ -176,7 +176,7 @@ void MainWindow::nextCard(){
 
 void MainWindow::deckRange(){
     double x=30,y=30;
-    for (int i=0;i<deckCards.length()-1;i++) {
+    for (int i=0;i<deckCards.length();i++) {
         deckCards[i]->move(x,y);
         deckCards[i]->raise();
         x-=0.5;
@@ -196,7 +196,7 @@ void MainWindow::saveParameter(){
     if(currentActiveCard){
         whichCardX = currentActiveCard->x();
         whichCardY = currentActiveCard->y();
-        qDebug()<<whichCardX<<whichCardY;
+        //qDebug()<<whichCardX<<whichCardY;
         fromWhatPlace();
     }
 }
@@ -222,7 +222,10 @@ void MainWindow::whatCardsHere(){
 
     for (int i = 0; i < openCards.length(); i++) {
         int thX = openCards[i]->x(), thY = openCards[i]->y();
-        if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200){
+        if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200&&openCards[i]->cardValue-currentActiveCard->cardValue==1&&
+                (((openCards[i]->suit=="h"||openCards[i]->suit=="d")&&(currentActiveCard->suit=="s"||currentActiveCard->suit=="c"))||
+                 ((openCards[i]->suit=="s"||openCards[i]->suit=="c")&&(currentActiveCard->suit=="h"||currentActiveCard->suit=="d")))){
+            qDebug()<<currentActiveCard->suit;
             openNearCards.append(openCards[i]);
             openNearCardsSets.append(openCardsSets[i]);
             openNearCardsDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
@@ -231,6 +234,7 @@ void MainWindow::whatCardsHere(){
         openNearCardsSets.removeAll(activeCardSet);
     }
 }
+
 void MainWindow::isThisCardOpen(){
     for (int i = 0; i<floorSets.length();i++){
         if(floorSets[i].isEmpty()==0){
@@ -239,41 +243,37 @@ void MainWindow::isThisCardOpen(){
         }
     }
 }
-//1111111111111111111111111111111111111111111111111111111111111111111
 void MainWindow::bestPlace(){
     int bestCard=0;
     for (int i = 1;i<openNearCards.length();i++) {
         if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;
     }
-
-    qDebug()<<openNearCards[bestCard]->value;
-    qDebug()<<openNearCards[bestCard]->x()<<openNearCards[bestCard]->y();
-    //currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+    //--------------------для нижней карты - збс---------------------------
+    currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
     openNearCardsSets[bestCard]->append(currentActiveCard);
-    openNearCardsSets[bestCard]->last()->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+    //openNearCardsSets[bestCard]->last()->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
     activeCardSet->removeAll(currentActiveCard);
 
     if(!activeCardSet->isEmpty()&&isFloorSet){
         activeCardSet->last()->setOpen();
         activeCardSet->last()->isBlock = false;
     }
+    //---------------------------------------------------------------------
 
 }
-//1111111111111111111111111111111111111111111111111111111111111111111
-
 
 void MainWindow::fromWhatPlace(){
     isFloorSet=0;
 
     int n = deckCards.length();
     if(n<floorSets.length()) n = floorSets.length();
-    if(n<readySets.length()) n = readySets.length();
+    else if(n<readySets.length()) n = readySets.length();
 
-    for (int i = 0;i<deckCards.length();i++) {
+    for (int i = 0;i<n;i++) {
         if(i<readySets.length()&& !readySets[i].isEmpty()&&
                 readySets[i].last()==currentActiveCard){
             activeCardSet=&readySets[i];
-            qDebug()<<"readySets"<<i+1;
+            //qDebug()<<"readySets"<<i+1;
         }
         else if(i<floorSets.length()&& !floorSets[i].isEmpty()&&
                 floorSets[i].last()==currentActiveCard){
@@ -284,7 +284,7 @@ void MainWindow::fromWhatPlace(){
         else if(i<deckCards.length()&& !deckCards.isEmpty()&&
                 deckCards[i]==currentActiveCard){
             activeCardSet=&deckCards;
-            qDebug()<<"deckCards"<<i+1;
+            //qDebug()<<"deckCards"<<i+1;
         }
     }
 }
