@@ -13,8 +13,8 @@ QTimer *timer;
 
 myCards::myCards(QWidget *parent) : QLabel(parent)
 {
-    timer = new QTimer(this);
-    timer->start(1);
+    //timer = new QTimer(this);
+    //timer->start(1);
     pix = new QPixmap(":/img/pictures/cards/"+value+".png");
     this->setPixmap(*pix);
     this->setFixedSize(143,200);

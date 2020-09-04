@@ -14,6 +14,7 @@ class myCards : public QLabel
 public:
     Q_OBJECT
 public:
+    explicit myCards(QWidget *parent = nullptr);
     //static myCards* currentActiveCard;
     QString value = "suit";
     QString suit;
@@ -26,7 +27,6 @@ public:
     bool isBlock = false;
     bool inDeck = true;
     bool onMove = false;
-    explicit myCards(QWidget *parent = nullptr);
     void setValue(QString value);
     void distribution(double x0=0, double y0=0, double x1=0, double y1=0);
 

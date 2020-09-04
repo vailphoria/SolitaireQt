@@ -5,6 +5,7 @@
 #include <QPropertyAnimation>
 #include <QSequentialAnimationGroup>
 #include "mycards.h"
+#include "place.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +37,8 @@ private slots:
     void moveCardToBestPlace();
     void bestPlace();
     void fromWhatPlace();
+    void emptyPlaces();
+    void openNextFloorCard();
 
 
 private:

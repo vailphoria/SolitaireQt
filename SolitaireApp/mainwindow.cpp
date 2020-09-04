@@ -26,7 +26,10 @@ QList <myCards*> deckCards;
 
 QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
-QList <QLabel*> topSet;
+QList <Place*> floorPlaces;
+QList <Place*> readyPlaces;
+QList <Place*> openNearCardPlaces;
+QList<double> openNearCardPlacesDistance;
 
 QList <myCards*> openCards;
 QList <QList <myCards*>*> openCardsSets;
@@ -40,6 +43,8 @@ myCards* MainWindow::currentActiveCard=nullptr;
 QList <myCards*> *activeCardSet;
 
 myCards *repeatDeck;
+
+bool isTheReadyEmpty = false, isTheFloorEmpty = false;
 
 int whichCardX = 0;
 int whichCardY = 0;
@@ -108,16 +113,19 @@ void MainWindow::newGame(){
         floorSets.append(QList<myCards*>());
     }
     //----------------------Top--------------------------
-    x = 540; y = 30;
-    for (int i = 0; i < 4; i++) {
-        topSet.append(new QLabel(this));
-        topSet[i]->setGeometry(x,y,143,200);
-        QPixmap pix(":/img/pictures/cards/place.png");
-        topSet[i]->setPixmap(pix);
+    x = 30;
+    for (int i = 0; i < 7; i++) {
+        if (i>2){
+            readyPlaces.append(new Place(this));
+            readyPlaces.last()->move(x,30);
+        }
+        floorPlaces.append(new Place(this));
+        floorPlaces[i]->move(x,260);
 
         x+=170;
     }
     createSets();
+    emptyPlaces();
 
 }
 
@@ -198,6 +206,24 @@ void MainWindow::saveParameter(){
         whichCardY = currentActiveCard->y();
         //qDebug()<<whichCardX<<whichCardY;
         fromWhatPlace();
+        //----------------A&K-----------------
+        if(currentActiveCard->cardValue==1&&isTheReadyEmpty){
+            for(int i=0;i<readyPlaces.length();i++){
+                openNearCardPlaces.append(readyPlaces[i]);
+                //qDebug()<<"readyPlaces"<<i<<readyPlaces[i]
+            }
+        }
+        if(currentActiveCard->cardValue==13&&isTheFloorEmpty){
+            for(int i=0;i<floorPlaces.length();i++){
+                openNearCardPlaces.append(floorPlaces[i]);
+            }
+        }
+
+        /*if (!openNearCardPlaces.isEmpty()){
+
+        }*/
+        //------------------------------------
+
     }
 }
 
@@ -205,33 +231,48 @@ void MainWindow::moveCardToBestPlace(){
     if(currentActiveCard){
         nowX = currentActiveCard->x(), nowY = currentActiveCard->y();//текущее местоположение
         whatCardsHere();//открытые карты, которые находятся в диапазоне "прикосновения"
-        if(openNearCards.isEmpty()==0) bestPlace();//поиск ближайшей карты
+        if(!openNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
         else currentActiveCard->move(whichCardX,whichCardY);
 
         //-------------удаление временных массивов------------
+        emptyPlaces();
         openCards.clear();
         openCardsSets.clear();
         openNearCards.clear();
         openNearCardsSets.clear();
         openNearCardsDistance.clear();
+        openNearCardPlaces.clear();
+        openNearCardPlacesDistance.clear();
     }
 }
 
 void MainWindow::whatCardsHere(){
     isThisCardOpen();//все открытые карты
-
-    for (int i = 0; i < openCards.length(); i++) {
-        int thX = openCards[i]->x(), thY = openCards[i]->y();
-        if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200&&openCards[i]->cardValue-currentActiveCard->cardValue==1&&
-                (((openCards[i]->suit=="h"||openCards[i]->suit=="d")&&(currentActiveCard->suit=="s"||currentActiveCard->suit=="c"))||
-                 ((openCards[i]->suit=="s"||openCards[i]->suit=="c")&&(currentActiveCard->suit=="h"||currentActiveCard->suit=="d")))){
-            qDebug()<<currentActiveCard->suit;
-            openNearCards.append(openCards[i]);
-            openNearCardsSets.append(openCardsSets[i]);
-            openNearCardsDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
+    //----------------------Places-------------------------
+    if(!openNearCardPlaces.isEmpty()){
+        for (int i = 0; i < openNearCardPlaces.length(); i++) {
+            int thX = openNearCardPlaces[i]->x(), thY = openNearCardPlaces[i]->y();
+            if(abs(thX-nowX)>143&&abs(thY-nowY)>200){
+                openNearCardPlacesDistance.append(10000);
+            }
+            else openNearCardPlacesDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
         }
-        openNearCards.removeAll(currentActiveCard);
-        openNearCardsSets.removeAll(activeCardSet);
+    }
+    //-----------------------Cards-------------------------
+    if(!openCards.isEmpty()){
+        for (int i = 0; i < openCards.length(); i++) {
+            int thX = openCards[i]->x(), thY = openCards[i]->y();
+            if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200&&openCards[i]->cardValue-currentActiveCard->cardValue==1&&
+                    (((openCards[i]->suit=="h"||openCards[i]->suit=="d")&&(currentActiveCard->suit=="s"||currentActiveCard->suit=="c"))||
+                     ((openCards[i]->suit=="s"||openCards[i]->suit=="c")&&(currentActiveCard->suit=="h"||currentActiveCard->suit=="d")))){
+                qDebug()<<currentActiveCard->suit;
+                openNearCards.append(openCards[i]);
+                openNearCardsSets.append(openCardsSets[i]);
+                openNearCardsDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
+            }
+            openNearCards.removeAll(currentActiveCard);
+            openNearCardsSets.removeAll(activeCardSet);
+        }
     }
 }
 
@@ -243,23 +284,62 @@ void MainWindow::isThisCardOpen(){
         }
     }
 }
-void MainWindow::bestPlace(){
-    int bestCard=0;
-    for (int i = 1;i<openNearCards.length();i++) {
-        if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;
-    }
-    //--------------------для нижней карты - збс---------------------------
-    currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
-    openNearCardsSets[bestCard]->append(currentActiveCard);
-    //openNearCardsSets[bestCard]->last()->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
-    activeCardSet->removeAll(currentActiveCard);
 
+void MainWindow::bestPlace(){
+    int bestPlace=-1;
+    int bestCard=0;
+    //--------------Place--------------
+    if(!openNearCardPlaces.isEmpty()){
+        bestPlace = 0;
+        for (int i = 1;i<openNearCardPlaces.length();i++) {
+            if(openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])bestPlace=i;
+        }
+    }
+    //--------------Card---------------
+    if(!openNearCards.isEmpty()){
+        for (int i = 1;i<openNearCards.length();i++) {
+            if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;
+        }
+    }
+
+    if(openNearCardPlaces.isEmpty()){
+        currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+        openNearCardsSets[bestCard]->append(currentActiveCard);
+        activeCardSet->removeAll(currentActiveCard);
+        openNextFloorCard();
+    }
+    else if(openNearCards.isEmpty()&&bestPlace!=-1){
+        currentActiveCard->move(openNearCardPlaces[bestPlace]->x(),openNearCardPlaces[bestPlace]->y());
+        if(currentActiveCard->cardValue == 1){
+            readySets[bestPlace].append(currentActiveCard);
+            //readyPlaces[bestPlace]->isEmpty = false;
+        }
+        else floorSets[bestPlace].append(currentActiveCard);
+        activeCardSet->removeAll(currentActiveCard);
+        openNextFloorCard();
+    }
+    else if(bestPlace!=-1){
+        if(openNearCardPlacesDistance[bestPlace]>openNearCardsDistance[bestCard]){
+            currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+            openNearCardsSets[bestCard]->append(currentActiveCard);
+            activeCardSet->removeAll(currentActiveCard);
+        }
+        else{
+            currentActiveCard->move(openNearCardPlaces[bestPlace]->x(),openNearCardPlaces[bestPlace]->y());
+            if(currentActiveCard->cardValue == 1)readySets[bestPlace].append(currentActiveCard);
+            else floorSets[bestPlace].append(currentActiveCard);
+            activeCardSet->removeAll(currentActiveCard);
+        }
+        openNextFloorCard();
+    }
+    else currentActiveCard->move(whichCardX,whichCardY);
+}
+
+void MainWindow::openNextFloorCard(){
     if(!activeCardSet->isEmpty()&&isFloorSet){
         activeCardSet->last()->setOpen();
         activeCardSet->last()->isBlock = false;
     }
-    //---------------------------------------------------------------------
-
 }
 
 void MainWindow::fromWhatPlace(){
@@ -289,4 +369,26 @@ void MainWindow::fromWhatPlace(){
     }
 }
 
-
+void MainWindow::emptyPlaces(){
+    isTheReadyEmpty = false, isTheFloorEmpty = false;
+    for (int i = 0; i < readyPlaces.length(); i++) {
+        if (!readySets[i].isEmpty()){
+            readyPlaces[i]->isEmpty=false;
+        }else {
+            readyPlaces[i]->isEmpty=true;
+            isTheReadyEmpty = true;
+        }
+        qDebug()<<"ReadyP"<<readyPlaces[i]->isEmpty;
+        qDebug()<<"ReadyS"<<readySets[i].isEmpty();
+    }
+    for (int i = 0; i < floorPlaces.length(); i++) {
+        if (!floorSets[i].isEmpty()){
+            floorPlaces[i]->isEmpty=false;
+        }else {
+            floorPlaces[i]->isEmpty=true;
+            isTheFloorEmpty = true;
+        }
+        qDebug()<<"FloorP"<<floorPlaces[i]->isEmpty;
+        qDebug()<<"FloorS"<<floorSets[i].isEmpty();
+    }
+}
