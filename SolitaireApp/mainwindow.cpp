@@ -268,7 +268,7 @@ void MainWindow::whatCardsHere(){
     if(!openNearCardPlaces.isEmpty()){
         for (int i = 0; i < openNearCardPlaces.length(); i++) {
             int thX = openNearCardPlaces[i]->x(), thY = openNearCardPlaces[i]->y();
-            if(abs(thX-nowX)>143&&abs(thY-nowY)>200){
+            if((abs(thX-nowX)>143&&abs(thY-nowY)>200)||!openNearCardPlaces[i]->isEmpty){
                 openNearCardPlacesDistance.append(10000);
             }
             else openNearCardPlacesDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
@@ -328,9 +328,16 @@ void MainWindow::bestPlace(){
     int bestCard=0,bestRCard=0;
     //--------------Place--------------
     if(!openNearCardPlaces.isEmpty()){
-        bestPlace = 0;
-        for (int i = 1;i<openNearCardPlaces.length();i++) {
-            if(openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])bestPlace=i;
+        for (int i = 0;i<openNearCardPlaces.length();i++){
+            if(openNearCardPlaces[i]->isEmpty){
+                bestPlace = i;
+                break;
+            }
+            qDebug()<<"i";
+        }
+        //bestPlace = 0;
+        for (int i = bestPlace+1;i<openNearCardPlaces.length();i++) {
+            if(openNearCardPlaces[i]->isEmpty&&openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])bestPlace=i;
         }
     }
     //--------------Card---------------
@@ -397,7 +404,7 @@ void MainWindow::bestPlace(){
         }
     }
 
-    qDebug()<<goTo<<bestRCard;
+    qDebug()<<goTo<<bestPlace;
     if(goTo !=""){
         if(goTo=="openNearCards"){
             qDebug()<<"!";
