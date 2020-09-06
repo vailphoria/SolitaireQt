@@ -444,17 +444,13 @@ void MainWindow::bestPlace(){
             readyNearCardsSets[bestRCard]->append(currentActiveCard);
         }else{
             currentActiveCard->move(openNearCardPlaces[bestPlace]->x(),openNearCardPlaces[bestPlace]->y());
-            if(currentActiveCard->cardValue == 1){
-                openNearCardPlacesSets[bestPlace]->append(currentActiveCard);
-            }
-            else {
-                openNearCardPlacesSets[bestPlace]->append(currentActiveCard);
-                if(!newGroup.isEmpty()){
-                    for (int i = 0;i<newGroup.length();i++){
-                        openNearCardPlacesSets[bestPlace]->append(newGroup[i]);
-                    }                  
-                    stopGroup();
-                }    
+            openNearCardPlacesSets[bestPlace]->append(currentActiveCard);
+            if(!newGroup.isEmpty()){
+                for (int i = 0;i<newGroup.length();i++){
+                    openNearCardPlacesSets[bestPlace]->append(newGroup[i]);
+                    activeCardSet->removeAll(newGroup[i]);
+                }
+                stopGroup();
             }
         }
         activeCardSet->removeAll(currentActiveCard);
