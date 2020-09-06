@@ -34,6 +34,7 @@ signals:
      void click();
      void moveCard();
      void stopCard();
+     void movingGroup();
 
 public slots:
     void setOpen();

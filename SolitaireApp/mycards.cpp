@@ -83,9 +83,11 @@ void myCards::mouseMoveEvent(QMouseEvent *event){
         if(MainWindow::currentActiveCard!=this){
             MainWindow::currentActiveCard = this;
             moveCard();
+            this->raise();
         }
         this->move(mapToParent(event->pos() - offset));
-        this->raise(); //while not in group
+        this->raise();
+        movingGroup();
         }
 }
 void myCards::mouseReleaseEvent(QMouseEvent *event){

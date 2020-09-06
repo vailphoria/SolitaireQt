@@ -12,6 +12,7 @@
 //class myCards;
 
 bool isFloorSet=0;
+bool isGroup = 0;
 
 QString deck[52] = { "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cJ", "cQ", "cK", "cA",
                      "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "dJ", "dQ", "dK", "dA",
@@ -22,7 +23,7 @@ QString deck[52] = { "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cJ"
 
 
 QList <myCards*> deckCards;
-
+QList <myCards*> newGroup;
 
 QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
@@ -44,10 +45,8 @@ QList <myCards*> readyNearCards;
 QList <QList <myCards*>*> readyNearCardsSets;
 QList<double> readyNearCardsDistance;
 
-//myCards *bestPlace=nullptr;
-
 myCards* MainWindow::currentActiveCard=nullptr;
-QList <myCards*> *activeCardSet;
+QList <myCards*> *activeCardSet = nullptr;
 
 myCards *repeatDeck;
 
@@ -111,6 +110,7 @@ void MainWindow::newGame(){
         deckCards[i]->setValue(deck[i]);
         connect(deckCards[i],SIGNAL(moveCard()),this,SLOT(saveParameter()));
         connect(deckCards[i],SIGNAL(stopCard()),this,SLOT(moveCardToBestPlace()));
+        connect(deckCards[i],SIGNAL(movingGroup()),this,SLOT(moveGroup()));
         x-=0.5;
         y-=0.5;
     }
@@ -202,7 +202,11 @@ void MainWindow::deckRange(){
     repeatDeck->move(30,30);
     repeatDeck->isNew=true;
 }
-void MainWindow::gameplay(){
+
+void MainWindow::haveWeNextStep(){
+
+}
+void MainWindow::gameOver(){
 
 }
 
@@ -213,6 +217,9 @@ void MainWindow::saveParameter(){
         whichCardY = currentActiveCard->y();
         //qDebug()<<whichCardX<<whichCardY;
         fromWhatPlace();
+
+        if(isGroup) realizeGroup();
+
         //----------------A&K-----------------
         if(currentActiveCard->cardValue==1&&isTheReadyEmpty){
             for(int i=0;i<readyPlaces.length();i++){
@@ -225,12 +232,6 @@ void MainWindow::saveParameter(){
                 openNearCardPlaces.append(floorPlaces[i]);
             }
         }
-
-        /*if (!openNearCardPlaces.isEmpty()){
-
-        }*/
-        //------------------------------------
-
     }
 }
 
@@ -238,9 +239,11 @@ void MainWindow::moveCardToBestPlace(){
     if(currentActiveCard){
         nowX = currentActiveCard->x(), nowY = currentActiveCard->y();//текущее местоположение
         whatCardsHere();//открытые карты, которые находятся в диапазоне "прикосновения"
-        if(!openNearCards.isEmpty()||!readyNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
+        if(!openNearCards.isEmpty()&&!newGroup.isEmpty())bestGroupPlace();
+        else if(!openNearCards.isEmpty()||!readyNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
         else currentActiveCard->move(whichCardX,whichCardY);
 
+        stopGroup();
         //-------------удаление временных массивов------------
         emptyPlaces();
 
@@ -259,6 +262,9 @@ void MainWindow::moveCardToBestPlace(){
         readyNearCards.clear();
         readyNearCardsSets.clear();
         readyNearCardsDistance.clear();
+
+        activeCardSet = nullptr;
+        newGroup.clear();
     }
 }
 
@@ -335,7 +341,6 @@ void MainWindow::bestPlace(){
             }
             qDebug()<<"i";
         }
-        //bestPlace = 0;
         for (int i = bestPlace+1;i<openNearCardPlaces.length();i++) {
             if(openNearCardPlaces[i]->isEmpty&&openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])bestPlace=i;
         }
@@ -427,6 +432,22 @@ void MainWindow::bestPlace(){
     }
 }
 
+void MainWindow::bestGroupPlace(){
+    int bestCard=0;
+    for (int i = 1;i<openNearCards.length();i++) {
+        if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;
+    }
+    currentActiveCard->move(openNearCards[bestCard]->x(),openNearCards[bestCard]->y()+40);
+    openNearCardsSets[bestCard]->append(currentActiveCard);
+    for (int i = 0;i<newGroup.length();i++){
+        openNearCardsSets[bestCard]->append(newGroup[i]);
+        activeCardSet->removeAll(newGroup[i]);
+    }
+    stopGroup();
+    activeCardSet->removeAll(currentActiveCard);
+    openNextFloorCard();
+}
+
 void MainWindow::openNextFloorCard(){
     if(!activeCardSet->isEmpty()&&isFloorSet){
         activeCardSet->last()->setOpen();
@@ -435,7 +456,8 @@ void MainWindow::openNextFloorCard(){
 }
 
 void MainWindow::fromWhatPlace(){
-    isFloorSet=0;
+    isFloorSet = 0;
+    isGroup = 0;
 
     int n = deckCards.length();
     if(n<floorSets.length()) n = floorSets.length();
@@ -445,7 +467,6 @@ void MainWindow::fromWhatPlace(){
         if(i<readySets.length()&& !readySets[i].isEmpty()&&
                 readySets[i].last()==currentActiveCard){
             activeCardSet=&readySets[i];
-            //qDebug()<<"readySets"<<i+1;
         }
         else if(i<floorSets.length()&& !floorSets[i].isEmpty()&&
                 floorSets[i].last()==currentActiveCard){
@@ -456,7 +477,18 @@ void MainWindow::fromWhatPlace(){
         else if(i<deckCards.length()&& !deckCards.isEmpty()&&
                 deckCards[i]==currentActiveCard){
             activeCardSet=&deckCards;
-            //qDebug()<<"deckCards"<<i+1;
+        }
+    }
+    if(activeCardSet==nullptr){
+        for (int i = 0;i<floorSets.length();i++){
+            if(floorSets[i].isEmpty())continue;
+            for (int j = 0;j<floorSets[i].length();j++){
+                if(floorSets[i][j]==currentActiveCard){
+                    activeCardSet=&floorSets[i];
+                    isFloorSet=1;
+                    isGroup=1;
+                }
+            }
         }
     }
 }
@@ -470,8 +502,6 @@ void MainWindow::emptyPlaces(){
             readyPlaces[i]->isEmpty=true;
             isTheReadyEmpty = true;
         }
-        //qDebug()<<"ReadyP"<<readyPlaces[i]->isEmpty;
-        //qDebug()<<"ReadyS"<<readySets[i].isEmpty();
     }
     for (int i = 0; i < floorPlaces.length(); i++) {
         if (!floorSets[i].isEmpty()){
@@ -480,7 +510,41 @@ void MainWindow::emptyPlaces(){
             floorPlaces[i]->isEmpty=true;
             isTheFloorEmpty = true;
         }
-        //qDebug()<<"FloorP"<<floorPlaces[i]->isEmpty;
-        //qDebug()<<"FloorS"<<floorSets[i].isEmpty();
+    }
+}
+//------------------ForGroups------------------
+
+void MainWindow::realizeGroup(){
+    qDebug()<<"groupFunction";
+
+    QList <myCards*> thisCardSet = *activeCardSet;
+    bool currentCardInGroup = false;
+
+    for(int i = 0;i<activeCardSet->length();i++){
+        if (!currentCardInGroup&&thisCardSet[i]==currentActiveCard)currentCardInGroup=true;
+        else if(currentCardInGroup){
+            newGroup.append(thisCardSet[i]);
+        }
+    }
+}
+
+void MainWindow::moveGroup(){
+    if(!newGroup.isEmpty()){
+        int x =currentActiveCard->x(),y=currentActiveCard->y();
+        for(int i = 0;i<newGroup.length();i++){
+            int plus = 20 + i*20;
+            newGroup[i]->move(x,y+plus);
+            newGroup[i]->raise();
+        }
+    }
+}
+
+void MainWindow::stopGroup(){
+    if(!newGroup.isEmpty()){
+        int x =currentActiveCard->x(),y=currentActiveCard->y();
+        for(int i = 0;i<newGroup.length();i++){
+            int plus = 40 + i*40;
+            newGroup[i]->move(x,y+plus);
+        }
     }
 }

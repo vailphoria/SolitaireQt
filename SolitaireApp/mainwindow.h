@@ -29,7 +29,7 @@ signals:
 private slots:
     void newGame();
     void nextCard();
-    void gameplay();
+    void endGame();
     void createSets();
     void saveParameter();
     void whatCardsHere();
@@ -39,6 +39,11 @@ private slots:
     void fromWhatPlace();
     void emptyPlaces();
     void openNextFloorCard();
+
+    void realizeGroup();
+    void moveGroup();
+    void stopGroup();
+    void bestGroupPlace();
 
 
 private:
