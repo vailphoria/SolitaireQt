@@ -29,7 +29,12 @@ QList <QList <myCards*>> floorSets;
 QList <QList <myCards*>> readySets;
 QList <Place*> floorPlaces;
 QList <Place*> readyPlaces;
+
+
+QList <Place*> openCardPlaces;
+QList <QList <myCards*>*> openCardPlacesSets;
 QList <Place*> openNearCardPlaces;
+QList <QList <myCards*>*> openNearCardPlacesSets;
 QList<double> openNearCardPlacesDistance;
 
 QList <myCards*> openCards;
@@ -226,28 +231,15 @@ void MainWindow::saveParameter(){
         //qDebug()<<whichCardX<<whichCardY;
         fromWhatPlace();
 
-        if(isGroup) realizeGroup();
-
-        //----------------A&K-----------------
-        if(currentActiveCard->cardValue==1&&isTheReadyEmpty){
-            for(int i=0;i<readyPlaces.length();i++){
-                openNearCardPlaces.append(readyPlaces[i]);
-                //qDebug()<<"readyPlaces"<<i<<readyPlaces[i]
-            }
-        }
-        if(currentActiveCard->cardValue==13&&isTheFloorEmpty){
-            for(int i=0;i<floorPlaces.length();i++){
-                openNearCardPlaces.append(floorPlaces[i]);
-            }
-        }
+        if(isGroup) realizeGroup();      
     }
 }
 //---не входит
 void MainWindow::moveCardToBestPlace(){
     if(currentActiveCard){
+        qDebug()<<"---------------------------------------------------";
         nowX = currentActiveCard->x(), nowY = currentActiveCard->y();//текущее местоположение
         whatCardsHere();//открытые карты, которые находятся в диапазоне "прикосновения"
-
         if(!openNearCards.isEmpty()&&!newGroup.isEmpty())bestGroupPlace();
         else if(!openNearCards.isEmpty()||!readyNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
         else currentActiveCard->move(whichCardX,whichCardY);
@@ -263,7 +255,10 @@ void MainWindow::moveCardToBestPlace(){
         openNearCardsSets.clear();
         openNearCardsDistance.clear();
         //places
+        openCardPlaces.clear();
+        openCardPlacesSets.clear();
         openNearCardPlaces.clear();
+        openNearCardPlacesSets.clear();
         openNearCardPlacesDistance.clear();
         //ready
         readyCards.clear();
@@ -282,14 +277,18 @@ void MainWindow::moveCardToBestPlace(){
 void MainWindow::whatCardsHere(){
     isThisCardOpen();//все открытые карты
     //----------------------Places-------------------------
-    if(!openNearCardPlaces.isEmpty()){
-        for (int i = 0; i < openNearCardPlaces.length(); i++) {
-            int thX = openNearCardPlaces[i]->x(), thY = openNearCardPlaces[i]->y();
-            if((abs(thX-nowX)>143&&abs(thY-nowY)>200)||!openNearCardPlaces[i]->isEmpty){
-                openNearCardPlacesDistance.append(10000);
+    if(!openCardPlaces.isEmpty()){
+        for (int i = 0; i < openCardPlaces.length(); i++) {
+            int thX = openCardPlaces[i]->x(), thY = openCardPlaces[i]->y();
+            if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200){
+                openNearCardPlaces.append(openCardPlaces[i]);
+                openNearCardPlacesSets.append(openCardPlacesSets[i]);
+                openNearCardPlacesDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
             }
-            else openNearCardPlacesDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
+            //openNearCards.removeAll(currentActiveCard);
+            openNearCardPlacesSets.removeAll(activeCardSet);
         }
+
     }
     //-----------------------Cards-------------------------
     if(!openCards.isEmpty()){
@@ -298,7 +297,6 @@ void MainWindow::whatCardsHere(){
             if(abs(thX-nowX)<=143&&abs(thY-nowY)<=200&&openCards[i]->cardValue-currentActiveCard->cardValue==1&&
                     (((openCards[i]->suit=="h"||openCards[i]->suit=="d")&&(currentActiveCard->suit=="s"||currentActiveCard->suit=="c"))||
                      ((openCards[i]->suit=="s"||openCards[i]->suit=="c")&&(currentActiveCard->suit=="h"||currentActiveCard->suit=="d")))){
-                qDebug()<<currentActiveCard->suit;
                 openNearCards.append(openCards[i]);
                 openNearCardsSets.append(openCardsSets[i]);
                 openNearCardsDistance.append(sqrt((thX-nowX)*(thX-nowX)+(thY-nowY)*(thY-nowY)));
@@ -329,7 +327,7 @@ void MainWindow::isThisCardOpen(){
         if(floorSets[i].isEmpty()==0){
             openCards.append(floorSets[i].last());
             openCardsSets.append(&floorSets[i]);
-        }
+        }      
     }
     for (int i = 0; i<readySets.length();i++){
         if(readySets[i].isEmpty()==0){
@@ -337,25 +335,40 @@ void MainWindow::isThisCardOpen(){
             readyCardsSets.append(&readySets[i]);
         }
     }
+    //----------------------------------------------------------
+    if(currentActiveCard->cardValue==1){
+        for(int i=0;i<readyPlaces.length();i++){
+            if(readySets[i].isEmpty()){
+                openCardPlaces.append(readyPlaces[i]);
+                openCardPlacesSets.append(&readySets[i]);
+            }
+        }
+    }
+    if(currentActiveCard->cardValue==13){
+        for(int i=0;i<floorPlaces.length();i++){
+            if(floorSets[i].isEmpty()){
+                openCardPlaces.append(floorPlaces[i]);
+                openCardPlacesSets.append(&floorSets[i]);
+            }
+        }
+    }
+    qDebug()<<openCardPlaces.length();
 }
 
 void MainWindow::bestPlace(){
-    int bestPlace=-1;
-
-    int bestCard=0,bestRCard=0;
+    int bestPlace=0,bestCard=0,bestRCard=0;
     //--------------Place--------------
     if(!openNearCardPlaces.isEmpty()){
-        for (int i = 0;i<openNearCardPlaces.length();i++){
-            if(openNearCardPlaces[i]->isEmpty){
-                bestPlace = i;
-                break;
+        for(int i = 1;i<openNearCardPlaces.length();i++) {
+            if(openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])
+            {
+                bestPlace=i;
+                qDebug()<<"bestPlace";
             }
-            qDebug()<<"i";
-        }
-        for (int i = bestPlace+1;i<openNearCardPlaces.length();i++) {
-            if(openNearCardPlaces[i]->isEmpty&&openNearCardPlacesDistance[bestPlace]>openNearCardPlacesDistance[i])bestPlace=i;
+            qDebug()<<"bestPlace";
         }
     }
+    qDebug()<<openNearCardPlaces.length();
     //--------------Card---------------
     if(!openNearCards.isEmpty()){
         for (int i = 1;i<openNearCards.length();i++) {
@@ -432,18 +445,16 @@ void MainWindow::bestPlace(){
         }else{
             currentActiveCard->move(openNearCardPlaces[bestPlace]->x(),openNearCardPlaces[bestPlace]->y());
             if(currentActiveCard->cardValue == 1){
-                readySets[bestPlace].append(currentActiveCard);
+                openNearCardPlacesSets[bestPlace]->append(currentActiveCard);
             }
             else {
-                floorSets[bestPlace].append(currentActiveCard);
+                openNearCardPlacesSets[bestPlace]->append(currentActiveCard);
                 if(!newGroup.isEmpty()){
-                    floorSets[bestPlace].append(currentActiveCard);
                     for (int i = 0;i<newGroup.length();i++){
-                        floorSets[bestPlace].append(newGroup[i]);
-                        activeCardSet->removeAll(newGroup[i]);
-                    }
+                        openNearCardPlacesSets[bestPlace]->append(newGroup[i]);
+                    }                  
                     stopGroup();
-                }
+                }    
             }
         }
         activeCardSet->removeAll(currentActiveCard);
@@ -517,23 +528,6 @@ void MainWindow::fromWhatPlace(){
 }
 
 void MainWindow::emptyPlaces(){
-    isTheReadyEmpty = false, isTheFloorEmpty = false;
-    for (int i = 0; i < readyPlaces.length(); i++) {
-        if (!readySets[i].isEmpty()){
-            readyPlaces[i]->isEmpty=false;
-        }else {
-            readyPlaces[i]->isEmpty=true;
-            isTheReadyEmpty = true;
-        }
-    }
-    for (int i = 0; i < floorPlaces.length(); i++) {
-        if (!floorSets[i].isEmpty()){
-            floorPlaces[i]->isEmpty=false;
-        }else {
-            floorPlaces[i]->isEmpty=true;
-            isTheFloorEmpty = true;
-        }
-    }
 }
 //------------------ForGroups------------------
 
