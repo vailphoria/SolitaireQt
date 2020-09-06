@@ -204,10 +204,18 @@ void MainWindow::deckRange(){
 }
 
 void MainWindow::haveWeNextStep(){
-
+    bool isGameOver = true;
+    for (int i = 0; i < readySets.length(); i++) {
+        if (!readySets[i].isEmpty()&&readySets[i].last()->cardValue==13) continue;
+        else{
+            isGameOver = false;
+            break;
+        }
+    }
+    if(isGameOver)gameOver();
 }
 void MainWindow::gameOver(){
-
+    qDebug()<<"GameOver";
 }
 
 //сохранение начальных X и Y
@@ -234,11 +242,12 @@ void MainWindow::saveParameter(){
         }
     }
 }
-
+//---не входит
 void MainWindow::moveCardToBestPlace(){
     if(currentActiveCard){
         nowX = currentActiveCard->x(), nowY = currentActiveCard->y();//текущее местоположение
         whatCardsHere();//открытые карты, которые находятся в диапазоне "прикосновения"
+
         if(!openNearCards.isEmpty()&&!newGroup.isEmpty())bestGroupPlace();
         else if(!openNearCards.isEmpty()||!readyNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
         else currentActiveCard->move(whichCardX,whichCardY);
@@ -265,9 +274,11 @@ void MainWindow::moveCardToBestPlace(){
 
         activeCardSet = nullptr;
         newGroup.clear();
+
+        haveWeNextStep();
     }
 }
-
+//---не входит
 void MainWindow::whatCardsHere(){
     isThisCardOpen();//все открытые карты
     //----------------------Places-------------------------
@@ -423,7 +434,17 @@ void MainWindow::bestPlace(){
             if(currentActiveCard->cardValue == 1){
                 readySets[bestPlace].append(currentActiveCard);
             }
-            else floorSets[bestPlace].append(currentActiveCard);
+            else {
+                floorSets[bestPlace].append(currentActiveCard);
+                if(!newGroup.isEmpty()){
+                    floorSets[bestPlace].append(currentActiveCard);
+                    for (int i = 0;i<newGroup.length();i++){
+                        floorSets[bestPlace].append(newGroup[i]);
+                        activeCardSet->removeAll(newGroup[i]);
+                    }
+                    stopGroup();
+                }
+            }
         }
         activeCardSet->removeAll(currentActiveCard);
         openNextFloorCard();
@@ -433,6 +454,8 @@ void MainWindow::bestPlace(){
 }
 
 void MainWindow::bestGroupPlace(){
+    qDebug()<<"here";
+
     int bestCard=0;
     for (int i = 1;i<openNearCards.length();i++) {
         if(openNearCardsDistance[bestCard]>openNearCardsDistance[i])bestCard=i;

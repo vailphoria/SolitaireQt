@@ -29,7 +29,8 @@ signals:
 private slots:
     void newGame();
     void nextCard();
-    void endGame();
+    void haveWeNextStep();
+    void gameOver();
     void createSets();
     void saveParameter();
     void whatCardsHere();
