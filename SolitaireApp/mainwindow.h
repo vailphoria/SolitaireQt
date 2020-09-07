@@ -38,7 +38,6 @@ private slots:
     void moveCardToBestPlace();
     void bestPlace();
     void fromWhatPlace();
-    void emptyPlaces();
     void openNextFloorCard();
 
     void realizeGroup();

@@ -137,7 +137,6 @@ void MainWindow::newGame(){
         x+=170;
     }
     createSets();
-    emptyPlaces();
 
 }
 
@@ -147,27 +146,33 @@ void MainWindow::createSets(){
         for (int j = 0;j<=i;j++){
             arrSize--;
             floorSets[i].append(deckCards[arrSize]);
-            //qDebug()<<i<<j<<floorSets[i][j]->value;
+
+            floorSets[i][j]->move(18,18);
+
+            qDebug()<<floorSets[i][j]->value<<i<<j<<arrSize;
         }
+        qDebug()<<"------------------------------------";
     }
     while(deckCards.length()>24) deckCards.removeLast();
     nextCard();
+    //gameOver();//-------------------------test GameOver
 
 }
 
 void MainWindow::nextCard(){
     //i=x j=y
-    int mlsDel=0, mlsMove = 500;
+    int mlsDel=100, mlsMove = 500;
     for (int j = 0;j<floorSets.length();j++){
         dnY = 260 + j*20;
         //mlsDel+=400;
         //mlsMove=500;
         for (int i=j;i<floorSets.length();i++){
-            dnX = 30 + i*170;
-            floorSets[i][j]->raise();
+            qDebug()<<floorSets[i][j]->value<<i<<j;
 
+
+            dnX = 30 + i*170;
             mlsDel+=90;
-            //mlsMove-=20;
+
 
             anim1 = new QPropertyAnimation (floorSets[i][j], "geometry");
             anim1->setDuration(mlsDel);
@@ -187,10 +192,12 @@ void MainWindow::nextCard(){
 
             floorSets[i][j]->isNew = false;
             floorSets[i][j]->inDeck = false;
+            connect(anim1,SIGNAL(finished()),floorSets[i][j],SLOT(raise()));
             if (i==j) connect(group,SIGNAL(finished()),floorSets[i][j],SLOT(setOpen()));
             else floorSets[i][j]->isBlock = true;
 
         }
+        qDebug()<<"---------------------------------------";
     }
 }
 
@@ -221,6 +228,14 @@ void MainWindow::haveWeNextStep(){
 }
 void MainWindow::gameOver(){
     qDebug()<<"GameOver";
+    QPixmap pix(":/img/pictures/background/endBg.png");
+    int w = this->width();
+    int h = this->height();
+    QLabel *bg = new QLabel(this);
+    bg->setGeometry(0,0,w,h);
+    bg->setPixmap(pix.scaled(w,h));
+
+
 }
 
 //сохранение начальных X и Y
@@ -231,7 +246,7 @@ void MainWindow::saveParameter(){
         //qDebug()<<whichCardX<<whichCardY;
         fromWhatPlace();
 
-        if(isGroup) realizeGroup();      
+        if(isGroup) realizeGroup();
     }
 }
 //---не входит
@@ -246,7 +261,6 @@ void MainWindow::moveCardToBestPlace(){
 
         stopGroup();
         //-------------удаление временных массивов------------
-        emptyPlaces();
 
         //floor
         openCards.clear();
@@ -522,11 +536,7 @@ void MainWindow::fromWhatPlace(){
         }
     }
 }
-
-void MainWindow::emptyPlaces(){
-}
 //------------------ForGroups------------------
-
 void MainWindow::realizeGroup(){
     qDebug()<<"groupFunction";
 
