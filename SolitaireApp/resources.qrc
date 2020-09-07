@@ -2,7 +2,6 @@
     <qresource prefix="/img">
         <file>pictures/background/bg.jpg</file>
         <file>pictures/background/elite-pro-uk-green.jpg</file>
-        <file>pictures/background/endBg.png</file>
         <file>pictures/cards/c2.png</file>
         <file>pictures/cards/c3.png</file>
         <file>pictures/cards/c4.png</file>
@@ -58,5 +57,6 @@
         <file>pictures/cards/suit.png</file>
         <file>pictures/cards/backCards.png</file>
         <file>pictures/cards/place.png</file>
+        <file>pictures/background/endBg.png</file>
     </qresource>
 </RCC>

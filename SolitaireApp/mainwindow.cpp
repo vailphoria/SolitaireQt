@@ -14,6 +14,9 @@
 bool isFloorSet=0;
 bool isGroup = 0;
 
+QLabel *end;
+QLabel *link;
+
 QString deck[52] = { "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "cJ", "cQ", "cK", "cA",
                      "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9", "d10", "dJ", "dQ", "dK", "dA",
                      "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9", "h10", "hJ", "hQ", "hK", "hA",
@@ -70,9 +73,21 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QPixmap pix(":/img/pictures/background/bg.jpg");
+    link = new QLabel(this);
+    link->setGeometry(475,350,340,100);
+    link->setText("You Win!");
+    link->setStyleSheet("QLabel {color:rgb(255, 223, 43); }");
+    QFont f( "Niagara Solid", 86, QFont::Bold);
+    link->setFont( f);
+
+    QPixmap pix1(":/img/pictures/background/endBg.png");
     int w = this->width();
     int h = this->height();
+    end = new QLabel(this);
+    end->setGeometry(0,0,w,h);
+    end->setPixmap(pix1.scaled(w,h));
+
+    QPixmap pix(":/img/pictures/background/bg.jpg");
     QLabel *bg = new QLabel(this);
     bg->setGeometry(0,0,w,h);
     bg->setPixmap(pix.scaled(w,h));
@@ -228,13 +243,9 @@ void MainWindow::haveWeNextStep(){
 }
 void MainWindow::gameOver(){
     qDebug()<<"GameOver";
-    QPixmap pix(":/img/pictures/background/endBg.png");
-    int w = this->width();
-    int h = this->height();
-    QLabel *bg = new QLabel(this);
-    bg->setGeometry(0,0,w,h);
-    bg->setPixmap(pix.scaled(w,h));
 
+    end->raise();
+    link->raise();
 
 }
 

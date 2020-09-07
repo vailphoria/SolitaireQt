@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1250</width>
-    <height>796</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,6 +28,34 @@
     </property>
     <property name="pixmap">
      <pixmap>pictures/cards/backCards.png</pixmap>
+    </property>
+   </widget>
+   <widget class="QLabel" name="link">
+    <property name="geometry">
+     <rect>
+      <x>455</x>
+      <y>320</y>
+      <width>340</width>
+      <height>100</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Niagara Solid</family>
+      <pointsize>82</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(202, 0, 0);</string>
+    </property>
+    <property name="text">
+     <string>You Win!</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
   </widget>
