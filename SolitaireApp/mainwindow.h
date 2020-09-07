@@ -45,6 +45,8 @@ private slots:
     void stopGroup();
     void bestGroupPlace();
 
+    void cardIsOutWindow();
+
 
 private:
     Ui::MainWindow *ui;

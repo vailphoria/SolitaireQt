@@ -258,8 +258,9 @@ void MainWindow::moveCardToBestPlace(){
         if(!openNearCards.isEmpty()&&!newGroup.isEmpty())bestGroupPlace();
         else if(!openNearCards.isEmpty()||!readyNearCards.isEmpty()||!openNearCardPlaces.isEmpty()) bestPlace();//поиск ближайшей карты
         else currentActiveCard->move(whichCardX,whichCardY);
-
         stopGroup();
+        cardIsOutWindow();
+        cardIsOutWindow();
         //-------------удаление временных массивов------------
 
         //floor
@@ -571,3 +572,54 @@ void MainWindow::stopGroup(){
         }
     }
 }
+
+void MainWindow::cardIsOutWindow(){
+    for(int i = 0;i<floorSets.length();i++){
+        bool currentCardIsOpen=false;
+        int sumOpenCards, firstCardY, firstCardNum;
+        if(!floorSets[i].isEmpty()){
+            sumOpenCards=0;
+            for(int j=0;j<floorSets[i].length();j++){
+                if (!currentCardIsOpen&&!floorSets[i][j]->isBlock){
+                    currentCardIsOpen=true;
+                    firstCardY = floorSets[i][j]->y();
+                    firstCardNum = j;
+                }else if(currentCardIsOpen){
+                    sumOpenCards+=1;
+                }
+            }
+
+            if(floorSets[i].last()->y()+200>this->height()){
+                double yStep = ((this->height()-200)-firstCardY)/sumOpenCards;
+                qDebug()<<sumOpenCards;
+                int cardY = floorSets[i][firstCardNum]->y();
+                for(int j=firstCardNum;j<floorSets[i].length();j++){
+                    floorSets[i][j]->move(floorSets[i][j]->x(),cardY);
+                    cardY+=yStep+1;
+                }
+            }else{
+                int cardY = floorSets[i][firstCardNum]->y();
+                for(int j=firstCardNum;j<floorSets[i].length();j++){
+                    floorSets[i][j]->move(floorSets[i][j]->x(),cardY);
+                    cardY+=40;
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
